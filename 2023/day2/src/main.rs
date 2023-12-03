@@ -67,44 +67,42 @@ fn main() {
         .expect("Error reading file");
     let mut games: Vec<Game> = Vec::new();
     for line in contents.lines() {
-        let game = Game {
-            draw: line
-                .split(":")
-                .nth(1)
-                .unwrap()
-                .split(";")
-                .map(|x| {
-                    let rgb = x.trim().split(',');
-                    let mut game_draw = GameDraw {
-                        red: None,
-                        green: None,
-                        blue: None,
-                    };
-                    for item in rgb {
-                        let item = item.trim();
-                        let mut items = item.split(" ");
-                        let (value, color) = (items.next().unwrap(), items.next().unwrap());
-                        match color {
-                            "red" => game_draw.red = Some(value.parse::<i32>().unwrap()),
-                            "green" => game_draw.green = Some(value.parse::<i32>().unwrap()),
-                            "blue" => game_draw.blue = Some(value.parse::<i32>().unwrap()),
-                            _ => (),
-                        }
+        let draw = line.split(":").nth(1).unwrap();
+        let draw = draw
+            .split(";")
+            .map(|x| {
+                let rgb = x.trim().split(',');
+                let mut game_draw = GameDraw {
+                    red: None,
+                    green: None,
+                    blue: None,
+                };
+                for item in rgb {
+                    let item = item.trim();
+                    let mut items = item.split_whitespace();
+                    let (value, color) = (items.next().unwrap(), items.next().unwrap());
+                    match color {
+                        "red" => game_draw.red = Some(value.parse().unwrap()),
+                        "green" => game_draw.green = Some(value.parse().unwrap()),
+                        "blue" => game_draw.blue = Some(value.parse().unwrap()),
+                        _ => (),
                     }
-                    game_draw
-                })
-                .collect(),
-            id: line
-                .split(":")
-                .nth(0)
-                .unwrap()
-                .split(" ")
-                .nth(1)
-                .unwrap()
-                .trim()
-                .parse::<i32>()
-                .unwrap(),
-        };
+                }
+                game_draw
+            })
+            .collect();
+
+        let id = line
+            .split(":")
+            .nth(0)
+            .unwrap()
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .trim()
+            .parse()
+            .unwrap();
+        let game = Game { draw, id };
         games.push(game);
     }
     let mut sum = 0;
@@ -114,6 +112,6 @@ fn main() {
             sum += game.id;
         }
         println!("Game {} result: {}", game.id, result);
-        println!("Sum: {}", sum);
     }
+    println!("Sum: {}", sum);
 }
